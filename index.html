@@ -818,6 +818,7 @@
         function updateHash(genre, index) {
             const newHash = buildHash(genre, index);
             if (window.location.hash !== newHash) {
+                window.isInternalHashUpdate = true; // flag to prevent re-triggering
                 window.location.hash = newHash;
             }
         }
@@ -846,8 +847,6 @@
         const shareHint = document.getElementById('shareHint');
         const copyBtn = document.getElementById('copyShareBtn');
         const genreButtons = document.querySelectorAll('.genre-btn');
-
-        let isInternalHashUpdate = false;
 
         // ============================================================
         //  HELPERS
@@ -878,14 +877,10 @@
             const displayHash = buildHash(currentGenre, currentIndex);
             shareUrlDisplay.textContent = displayHash;
             shareUrlDisplay.title = getFullShareUrl();
-
-            // Update the hint text
             const span = shareHint.querySelector('span:first-child');
             if (span) {
                 span.textContent = '🔗 Share this song:';
             }
-
-            // Reset copy button
             copyBtn.textContent = '📋 Copy';
             copyBtn.classList.remove('copied');
         }
@@ -1007,7 +1002,6 @@
                 `;
                 card.addEventListener('click', function() {
                     if (idx === currentIndex && !audio.paused) {
-                        // Same song, just toggle play
                         togglePlayPause();
                         return;
                     }
@@ -1034,9 +1028,8 @@
         //  SWITCH GENRE (with optional index)
         // ============================================================
         function switchGenre(genreKey, index) {
-            if (genreKey === currentGenre && index === currentIndex) {
-                // Already on this exact song
-                updateHash(genreKey, index);
+            if (!genreMap[genreKey]) {
+                console.warn("Unknown genre:", genreKey);
                 return;
             }
 
@@ -1123,8 +1116,8 @@
         //  HASH CHANGE LISTENER
         // ============================================================
         window.addEventListener('hashchange', function() {
-            if (isInternalHashUpdate) {
-                isInternalHashUpdate = false;
+            if (window.isInternalHashUpdate) {
+                window.isInternalHashUpdate = false;
                 return;
             }
             loadFromHash();
@@ -1195,7 +1188,7 @@
         });
 
         // Ensure URL matches state
-        isInternalHashUpdate = true;
+        window.isInternalHashUpdate = true;
         if (window.location.hash !== buildHash(currentGenre, currentIndex)) {
             window.location.hash = buildHash(currentGenre, currentIndex);
         }
