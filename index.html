@@ -382,19 +382,59 @@
             z-index: 1;
         }
         .share-hint {
-            font-size: 0.75rem;
+            font-size: 0.85rem;
             color: #a89fd4;
-            margin-top: 0.3rem;
-            opacity: 0.8;
+            margin-top: 0.8rem;
+            opacity: 0.9;
             letter-spacing: 0.3px;
+            background: rgba(18, 12, 30, 0.5);
+            backdrop-filter: blur(4px);
+            padding: 0.5rem 1rem;
+            border-radius: 30px;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            border: 1px solid rgba(220, 200, 255, 0.15);
         }
         .share-hint code {
             background: rgba(255, 255, 255, 0.08);
-            padding: 0.1rem 0.6rem;
-            border-radius: 12px;
-            font-size: 0.7rem;
+            padding: 0.15rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
             color: #d4c2ff;
-            border: 1px solid rgba(220, 200, 255, 0.15);
+            border: 1px solid rgba(220, 200, 255, 0.2);
+            font-weight: 600;
+            word-break: break-all;
+            max-width: 300px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .share-hint .copy-btn {
+            background: rgba(125, 100, 190, 0.3);
+            border: 1px solid rgba(220, 200, 255, 0.2);
+            color: #d5cef0;
+            padding: 0.1rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: 600;
+        }
+        .share-hint .copy-btn:hover {
+            background: rgba(125, 100, 190, 0.6);
+            border-color: rgba(220, 200, 255, 0.5);
+        }
+        .share-hint .copy-btn.copied {
+            background: rgba(70, 180, 120, 0.5);
+            border-color: rgba(70, 180, 120, 0.5);
+            color: #fff;
+        }
+        .share-wrap {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 0.4rem 0.8rem;
         }
         @media (max-width: 720px) {
             .app {
@@ -409,6 +449,13 @@
             }
             .footer-logo img {
                 height: 150px;
+            }
+            .share-hint code {
+                max-width: 160px;
+                font-size: 0.7rem;
+            }
+            .share-hint {
+                flex-wrap: wrap;
             }
         }
     </style>
@@ -429,16 +476,13 @@
 
         <!-- GENRE SELECTOR -->
         <div class="genre-selector" id="genreSelector">
-            <!-- Energy → now uses data-genre="energy" (URL #energy) -->
             <button class="genre-btn active" data-genre="energy">Energy</button>
-            <!-- Rock → now uses data-genre="christianRock" (URL #christianRock) -->
             <button class="genre-btn" data-genre="christianRock">Rock</button>
             <button class="genre-btn" data-genre="rap">Rap</button>
             <button class="genre-btn" data-genre="gospel">Gospel</button>
             <button class="genre-btn" data-genre="contemporary">Contemporary</button>
             <button class="genre-btn" data-genre="sermons">Sermons</button>
             <button class="genre-btn" data-genre="psalms">Psalms</button>
-            <!-- NEW: Country & Reggae -->
             <button class="genre-btn" data-genre="country">Country</button>
             <button class="genre-btn" data-genre="reggae">Reggae</button>
         </div>
@@ -470,7 +514,13 @@
                 <div class="song-count" id="songCount">20 tracks</div>
             </div>
             <div class="songs-grid" id="playlistContainer"></div>
-            <div class="share-hint" id="shareHint">🔗 Share this genre: <code id="shareUrlDisplay">#energy</code></div>
+            <div class="share-hint" id="shareHint">
+                <span>🔗 Share this song:</span>
+                <span class="share-wrap">
+                    <code id="shareUrlDisplay">#energy</code>
+                    <button class="copy-btn" id="copyShareBtn">📋 Copy</button>
+                </span>
+            </div>
         </div>
 
         <!-- FOOTER -->
@@ -500,13 +550,18 @@
 
         // ── ENERGY-style songs (formerly christianRockSongs) ──
         const energySongsData = [
+            { title: "Kingdoms Made of Gold", url: "https://github.com/openchurchproject/OCP-Music-2/raw/main/Kingdoms%20Made%20of%20Gold-Energy.mp3" },
+            { title: "King of the Rich", url: "https://github.com/openchurchproject/OCP-Music-2/raw/main/King%20of%20the%20Rich-Energy.mp3" },
             { title: "The Open Church", url: "https://github.com/openchurchproject/OCP-Music-2/raw/main/The%20Open%20Church.mp3" },
             { title: "Elmore City Warrant (Chopped Mix)", url: "https://github.com/openchurchproject/OCP-Music-2/raw/main/Elmore%20City%20Warrant%20(Chopped%20Mix).mp3" },
+            { title: "Paper Bible", url: "https://github.com/openchurchproject/OCP-Music-2/raw/main/Paper%20Bible%2C%20Black%20Tongue-Energy-2.mp3" },
+            { title: "Red Pulpit, Black Flames", url: "https://github.com/openchurchproject/OCP-Music-2/raw/main/Red%20Pulpit%2C%20Black%20Flames-Energy.mp3" },
             { title: "Church of the Velvet Rope", url: "https://github.com/openchurchproject/OCP-Music-2/raw/main/Church%20of%20the%20Velvet%20Rope.mp3" },
             { title: "Open Church Overdrive", url: "https://github.com/openchurchproject/OCP-Music-2/raw/main/Open%20Church%20Overdrive.mp3" },
             { title: "The Congregation of Denial", url: "https://github.com/openchurchproject/OCP-Music-2/raw/main/The%20Congregation%20of%20Denial.mp3" },
             { title: "All Day", url: "https://github.com/openchurchproject/OCP-Music-2/raw/main/All%20Day.mp3" },
             { title: "This Is The Open Church", url: "https://github.com/openchurchproject/OCP-Music-2/raw/main/This%20Is%20The%20Open%20Church.mp3" },
+            { title: "They call me a radical", url: "https://github.com/openchurchproject/OCP-Music-2/raw/main/They%20call%20me%20a%20radical-Energy.mp3" },
             { title: "Sunday Door Policy", url: "https://github.com/openchurchproject/OCP-Music-2/raw/main/Sunday%20Door%20Policy.mp3" },
             { title: "Love Be The Quota", url: "https://github.com/openchurchproject/OCP-Music-2/raw/main/Open%20Church%20Over%20Acres.mp3" },
             { title: "Sunday Lockout", url: "https://github.com/openchurchproject/OCP-Music-2/raw/main/Sunday%20Lockout.mp3" },
@@ -530,6 +585,7 @@
             { title: "Everlasting Light in a Neon Night", url: "https://github.com/openchurchproject/OCP-Music/raw/main/E-13.mp3" },
             { title: "Everlasting Light in The Dark", url: "https://github.com/openchurchproject/OCP-Music/raw/main/E-14.mp3" },
             { title: "Elmore City Warrant (Angelic Mysteries)", url: "https://github.com/openchurchproject/OCP-Music-2/raw/main/Elmore%20City%20Warrant%20(Angelic%20Mysteries).mp3" },
+            { title: "Paper Bible (Choir)", url: "https://github.com/openchurchproject/OCP-Music-2/raw/main/Paper%20Bible%2C%20Black%20Tongue-Energy.mp3" },
             { title: "Breath of Heaven", url: "https://github.com/TitanBusinessPros/SANS/raw/main/Holy%20Spirit%20Radiance%20x%20Heaven's%20Thunder%20(Mashup).mp3" }
         ];
 
@@ -538,6 +594,7 @@
             { title: "Blood of The Lamb", url: "https://github.com/openchurchproject/OCP-Music-2/raw/main/Blood%20of%20Lamb.mp3" },
             { title: "Pastor of the Dark", url: "https://github.com/openchurchproject/OCP-Music-2/raw/main/Pastor%20of%20the%20Dark.mp3" },
             { title: "Your the only one, that can get it done", url: "https://github.com/openchurchproject/OCP-Music-2/raw/main/Your%20the%20only%20one%2C%20that%20can%20get%20it%20done%20%20(1).mp3" },
+            { title: "False Shepherds Fall", url: "https://github.com/openchurchproject/OCP-Music-2/raw/main/False%20Shepherds%20Fall-Rock.mp3" },
             { title: "King of The Doorway", url: "https://github.com/openchurchproject/OCP-Music/raw/main/Rock-1.mp3" },
             { title: "Blood of Christ", url: "https://github.com/openchurchproject/OCP-Music-2/raw/main/Blood%20of%20Christ.mp3" },
             { title: "Heavens Thunder", url: "https://github.com/openchurchproject/OCP-Music/raw/main/Rock-2.mp3" },
@@ -545,9 +602,11 @@
             { title: "God of War", url: "https://github.com/openchurchproject/OCP-Music-2/raw/main/God%20of%20War.mp3" },
             { title: "Mighty Roar", url: "https://github.com/openchurchproject/OCP-Music/raw/main/Rock-4.mp3" },
             { title: "Shattered Faith", url: "https://github.com/openchurchproject/OCP-Music/raw/main/Rock-5.mp3" },
+            { title: "They Call Me A Radical", url: "https://github.com/openchurchproject/OCP-Music-2/raw/main/They%20call%20me%20a%20radical%2C%20%20the%20preacher%20cl.mp3" },
             { title: "Rise and Fall", url: "https://github.com/openchurchproject/OCP-Music/raw/main/Rock-6.mp3" },
             { title: "Burning Through the Silence", url: "https://github.com/openchurchproject/OCP-Music/raw/main/Rock-7.mp3" },
             { title: "Heaven's Glow (Remix)", url: "https://github.com/openchurchproject/OCP-Music/raw/main/Rock-8.mp3" },
+            { title: "Unshaken Throne Cover", url: "https://github.com/openchurchproject/OCP-Music-2/raw/main/Unshaken%20Throne%20(Cover).mp3" },
             { title: "Light Up the Dark", url: "https://github.com/openchurchproject/OCP-Music/raw/main/Rock-10.mp3" },
             { title: "The Wrath of Yah", url: "https://github.com/openchurchproject/OCP-Music/raw/main/Rock-11.mp3" },
             { title: "Divine Wrath", url: "https://github.com/openchurchproject/OCP-Music/raw/main/Rock-12.mp3" },
@@ -562,16 +621,20 @@
 
         // ── RAP ──
         const rapSongs = [
+            { title: "Rich Man’s Kingdom", url: "https://github.com/openchurchproject/OCP-Music-2/raw/main/Rich%20Man%E2%80%99s%20Kingdom-Rap.mp3" },
             { title: "Fake Church", url: "https://github.com/openchurchproject/OCP-Music-2/raw/main/Anti%20Christ%20Church.mp3" },
             { title: "Elmore City Warant", url: "https://github.com/openchurchproject/OCP-Music-2/raw/main/Elmore%20City%20Warant.mp3" },
             { title: "My_Crew x I_pray (Mashup)", url: "https://github.com/openchurchproject/OCP-Music-2/raw/main/My_Crew%20x%20I_pray%20(Mashup).mp3" },
             { title: "Pastor At The Gate", url: "https://github.com/openchurchproject/OCP-Music-2/raw/main/Pastor%20At%20The%20Gate.mp3" },
             { title: "Open Church on the Move", url: "https://github.com/openchurchproject/OCP-Music-2/raw/main/Open%20Church%20on%20the%20Move.mp3" },
             { title: "Open Church Armada", url: "https://github.com/openchurchproject/OCP-Music-2/raw/main/Open%20Church%20Armada.mp3" },
+            { title: "Jesus Don’t Hang at That Church", url: "https://github.com/openchurchproject/OCP-Music-2/raw/main/Jesus%20Don%E2%80%99t%20Hang%20at%20That%20Church-Rap.mp3" },
             { title: "Door's Don't Close", url: "https://github.com/openchurchproject/OCP-Music-2/raw/main/Doors%20Don't%20Close.mp3" },
+            { title: "Demons in Disguise", url: "https://github.com/openchurchproject/OCP-Music-2/raw/main/Demons%20in%20Disguise-Rap.mp3" },
             { title: "Land for the little ones", url: "https://github.com/openchurchproject/OCP-Music/raw/main/Rap-1.mp3" },
-            { title: "We open", url: "https://github.com/openchurchproject/OCP-Music/raw/main/We-open-Rap-2.mp3" },
+            { title: "They Call Me A Radical", url: "https://github.com/openchurchproject/OCP-Music-2/raw/main/They%20call%20me%20a%20radicalreal%20rap.mp3" },
             { title: "Saint Anthony", url: "https://github.com/openchurchproject/OCP-Music/raw/main/Saint%20Anthony.mp3" },
+            { title: "Open All Day, All Night", url: "https://github.com/openchurchproject/OCP-Music-2/raw/main/Open%20All%20Day%2C%20All%20Night-Rap.mp3" },
             { title: "VIP LIST (YOU AIN'T ON IT)", url: "https://github.com/openchurchproject/OCP-Music/raw/main/Rap-4.mp3" },
             { title: "Locked Out the Kingdom", url: "https://github.com/openchurchproject/OCP-Music/raw/main/Rap-5.mp3" },
             { title: "Tithes in the Trap", url: "https://github.com/openchurchproject/OCP-Music/raw/main/Rap-6.mp3" },
@@ -586,12 +649,14 @@
 
         // ── GOSPEL ──
         const gospelSongs = [
+            { title: "Jesus Outside The Church Doors", url: "https://github.com/openchurchproject/OCP-Music-2/raw/main/Jesus%20Outside%20The%20Church%20Doors-Gospel.mp3" },
             { title: "Bone Dust Hallelujah", url: "https://github.com/openchurchproject/OCP-Music-2/raw/main/Bone%20Dust%20Hallelujah.mp3" },
             { title: "I saw land", url: "https://github.com/openchurchproject/OCP-Music/raw/main/Gospel-1.mp3" },
             { title: "Open Church Anthem", url: "https://github.com/openchurchproject/OCP-Music-2/raw/main/Open%20Church%20Anthem.mp3" },
             { title: "Under the Pew", url: "https://github.com/openchurchproject/OCP-Music-2/raw/main/Under%20the%20Pew.mp3" },
             { title: "Why did you sell your soul", url: "https://github.com/openchurchproject/OCP-Music/raw/main/Why%20did%20you%20sell%20your%20soul_.mp3" },
             { title: "God of The Open Church", url: "https://github.com/openchurchproject/OCP-Music-2/raw/main/Open%20Church%20Anthem.mp3" },
+            { title: "Lock the Doors on Jesus", url: "https://github.com/openchurchproject/OCP-Music-2/raw/main/Lock%20the%20Doors%20on%20Jesus-Gospel.mp3" },
             { title: "Jesus Is The King", url: "https://github.com/openchurchproject/OCP-Music/raw/main/G-1.mp3" },
             { title: "Burning Bush Boogie", url: "https://github.com/openchurchproject/OCP-Music-2/raw/main/Burning%20Bush%20Boogie.mp3" },
             { title: "Moth in the Halo", url: "https://github.com/openchurchproject/OCP-Music-2/raw/main/Moth%20in%20the%20Halo.mp3" },
@@ -630,9 +695,11 @@
 
         // ── SERMONS ──
         const sermonsSongs = [
+            { title: "Shadrach, Meshach, and Abednego", url: "https://github.com/openchurchproject/OCP-Music-2/raw/main/Shadrach%2C%20Meshach%2C%20and%20Abednego-Sermon.mp3" },
             { title: "Open The Church 24/7", url: "https://github.com/openchurchproject/OCP-Music/raw/main/Sermon-1.mp3" },
             { title: "Pew Lockout Abyss", url: "https://github.com/openchurchproject/OCP-Music-2/raw/main/Pew%20Lockout%20Abyss.mp3" },
-            { title: "Sermon 20", url: "https://github.com/TitanBusinessPros/SANS/raw/main/Holy%20Spirit%20Radiance%20x%20Heaven's%20Thunder%20(Mashup).mp3" }
+            { title: "A New Song", url: "https://github.com/openchurchproject/OCP-Music-2/raw/main/Sing%20to%20the%20LORD%20a%20new%20song%3B%20sing%20to%20the-Sermon.mp3" },
+            { title: "Jesus Matrix Sermon", url: "https://github.com/openchurchproject/OCP-Music-2/raw/main/Jesus-Matrix-Sermon.mp3" }
         ];
 
         // ── PSALMS ──
@@ -660,16 +727,17 @@
             { title: "Psalm 148", url: "https://github.com/openchurchproject/OCP-Music/raw/main/Psalm%20148.mp3" }
         ];
 
-        // ── COUNTRY (placeholder) ──
+        // ── COUNTRY ──
         const countrySongs = [
-            { title: "Sermon-1 (Country Placeholder)", url: "https://github.com/openchurchproject/OCP-Music/raw/main/Sermon-1.mp3" },
+            { title: "Quiet Little Town-Country", url: "https://github.com/openchurchproject/OCP-Music-2/raw/main/Quiet%20Little%20Town-Country.mp3" },
+            { title: "Big Church, Empty Heart", url: "https://github.com/openchurchproject/OCP-Music-2/raw/main/Big%20Church%2C%20Empty%20Heart-Country.mp3" },
             { title: "Pew Lockout Abyss (Country Placeholder)", url: "https://github.com/openchurchproject/OCP-Music-2/raw/main/Pew%20Lockout%20Abyss.mp3" },
             { title: "Jesus-Matrix-Sermon (Country Placeholder)", url: "https://github.com/openchurchproject/OCP-Music-2/raw/main/Jesus-Matrix-Sermon.mp3" }
         ];
 
-        // ── REGGAE (placeholder) ──
+        // ── REGGAE ──
         const reggaeSongs = [
-            { title: "Sermon-1 (Reggae Placeholder)", url: "https://github.com/openchurchproject/OCP-Music/raw/main/Sermon-1.mp3" },
+            { title: "Ain't nothing I could say", url: "https://github.com/openchurchproject/OCP-Music-2/raw/main/Ain't%20nothing%20I%20could%20say-real.mp3" },
             { title: "Pew Lockout Abyss (Reggae Placeholder)", url: "https://github.com/openchurchproject/OCP-Music-2/raw/main/Pew%20Lockout%20Abyss.mp3" },
             { title: "Jesus-Matrix-Sermon (Reggae Placeholder)", url: "https://github.com/openchurchproject/OCP-Music-2/raw/main/Jesus-Matrix-Sermon.mp3" }
         ];
@@ -690,9 +758,7 @@
         };
 
         const genreMap = {
-            // Energy → now uses energySongsData (formerly christianRockSongs)
             energy: { name: "Energy", songs: energySongsData },
-            // Rock → now uses rockSongsData (formerly energySongs)
             christianRock: { name: "Rock", songs: rockSongsData },
             rap: { name: "Rap", songs: rapSongs },
             gospel: { name: "Gospel", songs: gospelSongs },
@@ -704,28 +770,62 @@
         };
 
         // ============================================================
-        //  ROUTING: read / write genre from URL hash
+        //  ROUTING: read / write genre + song index from URL hash
+        //  URL format: #genre           → first song (index 0)
+        //              #genre/2         → second song (index 1)  [1-indexed in URL]
         // ============================================================
-        function getGenreFromHash() {
+
+        function parseHash() {
             const raw = window.location.hash.slice(1);
-            if (!raw) return null;
-            const lower = raw.toLowerCase();
-            for (const key of Object.keys(genreMap)) {
-                if (key.toLowerCase() === lower) return key;
+            if (!raw) return { genre: null, index: null };
+
+            let genre = raw;
+            let index = null;
+
+            const slashIdx = raw.indexOf('/');
+            if (slashIdx !== -1) {
+                genre = raw.substring(0, slashIdx);
+                const indexStr = raw.substring(slashIdx + 1);
+                const parsed = parseInt(indexStr, 10);
+                // URL uses 1-indexed → convert to 0-indexed internally
+                if (!isNaN(parsed) && parsed > 0) {
+                    index = parsed - 1;
+                }
             }
-            return null;
+
+            genre = genre.toLowerCase();
+
+            // Validate genre
+            if (!genreMap[genre]) return { genre: null, index: null };
+
+            // Validate index
+            const songs = genreMap[genre].songs;
+            if (index !== null && (index < 0 || index >= songs.length)) {
+                index = null; // fallback to first song
+            }
+
+            return { genre, index };
         }
 
-        function updateHash(genreKey) {
-            if (window.location.hash !== '#' + genreKey) {
-                window.location.hash = genreKey;
+        function buildHash(genre, index) {
+            // index is 0-based internally; URL uses 1-based
+            if (index !== null && index !== undefined && index > 0) {
+                return '#' + genre + '/' + (index + 1);
+            }
+            return '#' + genre;
+        }
+
+        function updateHash(genre, index) {
+            const newHash = buildHash(genre, index);
+            if (window.location.hash !== newHash) {
+                window.location.hash = newHash;
             }
         }
 
         // ============================================================
         //  PLAYER STATE
         // ============================================================
-        let currentGenre = 'energy'; // default: Energy
+        let currentGenre = 'energy';
         let songsData = genreMap[currentGenre].songs;
         let currentIndex = 0;
         let isPlaying = false;
@@ -743,7 +843,11 @@
         const playlistTitle = document.getElementById('playlistTitle');
         const songCount = document.getElementById('songCount');
         const shareUrlDisplay = document.getElementById('shareUrlDisplay');
+        const shareHint = document.getElementById('shareHint');
+        const copyBtn = document.getElementById('copyShareBtn');
         const genreButtons = document.querySelectorAll('.genre-btn');
+
+        let isInternalHashUpdate = false;
 
         // ============================================================
         //  HELPERS
@@ -764,16 +868,71 @@
             });
         }
 
+        function getFullShareUrl() {
+            const base = window.location.origin + window.location.pathname + window.location.search;
+            const hash = buildHash(currentGenre, currentIndex);
+            return base + hash;
+        }
+
         function updateShareHint() {
-            const url = window.location.pathname + window.location.search + '#' + currentGenre;
-            shareUrlDisplay.textContent = '#' + currentGenre;
-            shareUrlDisplay.title = url;
+            const displayHash = buildHash(currentGenre, currentIndex);
+            shareUrlDisplay.textContent = displayHash;
+            shareUrlDisplay.title = getFullShareUrl();
+
+            // Update the hint text
+            const span = shareHint.querySelector('span:first-child');
+            if (span) {
+                span.textContent = '🔗 Share this song:';
+            }
+
+            // Reset copy button
+            copyBtn.textContent = '📋 Copy';
+            copyBtn.classList.remove('copied');
+        }
+
+        function copyShareUrl() {
+            const url = getFullShareUrl();
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(url).then(() => {
+                    copyBtn.textContent = '✅ Copied!';
+                    copyBtn.classList.add('copied');
+                    setTimeout(() => {
+                        copyBtn.textContent = '📋 Copy';
+                        copyBtn.classList.remove('copied');
+                    }, 3000);
+                }).catch(() => {
+                    fallbackCopy(url);
+                });
+            } else {
+                fallbackCopy(url);
+            }
+        }
+
+        function fallbackCopy(text) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            textarea.style.position = 'fixed';
+            textarea.style.opacity = '0';
+            document.body.appendChild(textarea);
+            textarea.select();
+            try {
+                document.execCommand('copy');
+                copyBtn.textContent = '✅ Copied!';
+                copyBtn.classList.add('copied');
+                setTimeout(() => {
+                    copyBtn.textContent = '📋 Copy';
+                    copyBtn.classList.remove('copied');
+                }, 3000);
+            } catch (e) {
+                alert('Copy this URL: ' + text);
+            }
+            document.body.removeChild(textarea);
         }
 
         // ============================================================
         //  CORE PLAYER FUNCTIONS
         // ============================================================
-        function loadSong(index) {
+        function loadSong(index, updateUrl = true) {
             if (index < 0) index = 0;
             if (index >= songsData.length) index = 0;
             currentIndex = index;
@@ -787,7 +946,13 @@
                 progressSlider.max = audio.duration;
                 audio.removeEventListener('loadedmetadata', onMeta);
             }, { once: true });
-            if (isPlaying) audio.play().catch(e => console.warn("Playback error:", e));
+            if (isPlaying) {
+                audio.play().catch(e => console.warn("Playback error:", e));
+            }
+            if (updateUrl) {
+                updateHash(currentGenre, currentIndex);
+            }
+            updateShareHint();
         }
 
         function togglePlayPause() {
@@ -807,7 +972,7 @@
             let next = currentIndex + 1;
             if (next >= songsData.length) next = 0;
             currentIndex = next;
-            loadSong(currentIndex);
+            loadSong(currentIndex, true);
             if (isPlaying) audio.play().catch(e => console.log);
         }
 
@@ -815,7 +980,7 @@
             let prev = currentIndex - 1;
             if (prev < 0) prev = songsData.length - 1;
             currentIndex = prev;
-            loadSong(currentIndex);
+            loadSong(currentIndex, true);
             if (isPlaying) audio.play().catch(e => console.log);
         }
 
@@ -840,9 +1005,14 @@
                     </div>
                     <div class="play-icon">🎵</div>
                 `;
-                card.addEventListener('click', () => {
+                card.addEventListener('click', function() {
+                    if (idx === currentIndex && !audio.paused) {
+                        // Same song, just toggle play
+                        togglePlayPause();
+                        return;
+                    }
                     currentIndex = idx;
-                    loadSong(currentIndex);
+                    loadSong(currentIndex, true);
                     if (audio.paused) {
                         audio.play().then(() => {
                             isPlaying = true;
@@ -861,13 +1031,15 @@
         }
 
         // ============================================================
-        //  SWITCH GENRE
+        //  SWITCH GENRE (with optional index)
         // ============================================================
-        function switchGenre(genreKey) {
-            if (genreKey === currentGenre) {
-                updateHash(genreKey);
+        function switchGenre(genreKey, index) {
+            if (genreKey === currentGenre && index === currentIndex) {
+                // Already on this exact song
+                updateHash(genreKey, index);
                 return;
             }
+
             const wasPlaying = isPlaying;
             audio.pause();
             isPlaying = false;
@@ -875,18 +1047,16 @@
 
             currentGenre = genreKey;
             songsData = genreMap[genreKey].songs;
+
+            // Validate index
+            if (index === null || index === undefined || index < 0 || index >= songsData.length) {
+                index = 0;
+            }
+            currentIndex = index;
+
             document.body.style.backgroundImage = genreBackgrounds[genreKey];
 
-            currentIndex = 0;
-            loadSong(0);
-
-            if (wasPlaying) {
-                audio.play().then(() => {
-                    isPlaying = true;
-                    playPauseBtn.innerHTML = "⏸️";
-                }).catch(() => {});
-            }
-
+            loadSong(currentIndex, false);
             renderPlaylist();
 
             genreButtons.forEach(btn => {
@@ -895,24 +1065,69 @@
                 else btn.classList.remove('active');
             });
 
-            updateHash(genreKey);
+            // Update URL after everything is set
+            updateHash(currentGenre, currentIndex);
+
+            if (wasPlaying) {
+                audio.play().then(() => {
+                    isPlaying = true;
+                    playPauseBtn.innerHTML = "⏸️";
+                }).catch(() => {});
+            }
+
             updateShareHint();
+        }
+
+        // ============================================================
+        //  LOAD FROM HASH (called on hashchange and init)
+        // ============================================================
+        function loadFromHash() {
+            const parsed = parseHash();
+            if (!parsed.genre) {
+                // Invalid hash → fallback to energy / first song
+                if (currentGenre !== 'energy' || currentIndex !== 0) {
+                    switchGenre('energy', 0);
+                }
+                return;
+            }
+
+            const { genre, index } = parsed;
+            const targetIndex = (index !== null && index >= 0 && index < genreMap[genre].songs.length) ? index : 0;
+
+            if (genre !== currentGenre) {
+                switchGenre(genre, targetIndex);
+            } else if (targetIndex !== currentIndex) {
+                // Same genre, different song
+                currentIndex = targetIndex;
+                loadSong(currentIndex, false);
+                updateHash(currentGenre, currentIndex);
+                renderPlaylist();
+                // Ensure the active genre button stays active
+                genreButtons.forEach(btn => {
+                    const btnGenre = btn.getAttribute('data-genre');
+                    if (btnGenre === currentGenre) btn.classList.add('active');
+                    else btn.classList.remove('active');
+                });
+                updateShareHint();
+                if (isPlaying) {
+                    audio.play().catch(() => {});
+                }
+            } else {
+                // Same genre + same song → just ensure URL is correct
+                updateHash(currentGenre, currentIndex);
+                updateShareHint();
+            }
         }
 
         // ============================================================
         //  HASH CHANGE LISTENER
         // ============================================================
         window.addEventListener('hashchange', function() {
-            const genre = getGenreFromHash();
-            if (genre && genre !== currentGenre) {
-                switchGenre(genre);
-            } else if (!genre) {
-                if (currentGenre !== 'energy') {
-                    switchGenre('energy');
-                }
-            } else {
-                updateShareHint();
+            if (isInternalHashUpdate) {
+                isInternalHashUpdate = false;
+                return;
             }
+            loadFromHash();
         });
 
         // ============================================================
@@ -922,9 +1137,16 @@
             btn.addEventListener('click', function() {
                 const genre = this.getAttribute('data-genre');
                 if (genre !== currentGenre) {
-                    switchGenre(genre);
+                    switchGenre(genre, 0);
                 } else {
-                    updateHash(genre);
+                    // Already on this genre → just update URL to first song
+                    if (currentIndex !== 0) {
+                        currentIndex = 0;
+                        loadSong(currentIndex, true);
+                        renderPlaylist();
+                    } else {
+                        updateHash(currentGenre, 0);
+                    }
                 }
             });
         });
@@ -947,17 +1169,23 @@
         prevBtn.addEventListener('click', prevTrack);
         nextBtn.addEventListener('click', nextTrack);
 
+        // Copy button
+        copyBtn.addEventListener('click', copyShareUrl);
+
         // ============================================================
         //  INITIALIZE
         // ============================================================
-        const hashGenre = getGenreFromHash();
-        const startGenre = hashGenre || 'energy';
+        const parsed = parseHash();
+        const startGenre = parsed.genre || 'energy';
+        const startIndex = (parsed.index !== null && parsed.index >= 0 && parsed.index < genreMap[startGenre].songs.length) ? parsed.index : 0;
 
         document.body.style.backgroundImage = genreBackgrounds[startGenre];
 
         currentGenre = startGenre;
         songsData = genreMap[currentGenre].songs;
-        loadSong(0);
+        currentIndex = startIndex;
+
+        loadSong(currentIndex, false);
         renderPlaylist();
 
         genreButtons.forEach(btn => {
@@ -966,8 +1194,10 @@
             else btn.classList.remove('active');
         });
 
-        if (!window.location.hash || window.location.hash !== '#' + currentGenre) {
-            updateHash(currentGenre);
+        // Ensure URL matches state
+        isInternalHashUpdate = true;
+        if (window.location.hash !== buildHash(currentGenre, currentIndex)) {
+            window.location.hash = buildHash(currentGenre, currentIndex);
         }
         updateShareHint();
 
@@ -976,8 +1206,11 @@
         playPauseBtn.innerHTML = "▶️";
         audio.volume = 0.8;
 
-        console.log('🎵 Sing A New Psalm — share any genre via URL hash!');
-        console.log('   Examples: #energy  #christianRock  #rap  #gospel  #country  #reggae');
+        console.log('🎵 Sing A New Psalm — share any song via URL!');
+        console.log('   Examples: #energy       (first song)');
+        console.log('             #energy/3     (third song in Energy)');
+        console.log('             #christianRock/5  (fifth song in Rock)');
+        console.log('   📋 Click the copy button next to the URL to copy the shareable link.');
     </script>
 </body>
 </html>
